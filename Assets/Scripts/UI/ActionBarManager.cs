@@ -20,7 +20,7 @@ public class ActionBarManager : MonoBehaviour
     {
         if (current.Count >= 7)
         {
-            GameManager.Instance.LoseGame();
+            GameManager.Instance.ShowEndGame(false);
             return;
         }
 
@@ -30,6 +30,7 @@ public class ActionBarManager : MonoBehaviour
         current.Add(figUI);
 
         CheckMatch();
+
     }
 
     private void CheckMatch()
