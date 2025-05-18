@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour
 
     public void ShowEndGame(bool isWin)
     {
-        endGameText.text = isWin ? "Победа!" : "Поражение!";
+        endGameText.text = isWin ? "You Win!" : "You Lose!";
         endGamePanel.SetActive(true);
     }
     public void RestartGame()

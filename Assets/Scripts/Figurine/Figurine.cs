@@ -29,4 +29,8 @@ public class Figurine : MonoBehaviour
             default: return Color.white;
         }
     }
+    private void OnMouseDown()
+    {
+        GameManager.Instance.OnFigurineClicked(this);
+    }
 }

@@ -30,34 +30,48 @@ public class ActionBarManager : MonoBehaviour
         current.Add(figUI);
 
         CheckMatch();
-
     }
 
     private void CheckMatch()
     {
-        if (current.Count < 3) return;
+        bool foundMatch = true;
 
-        for (int i = 0; i <= current.Count - 3; i++)
+        while (foundMatch)
         {
-            var a = current[i];
-            var b = current[i + 1];
-            var c = current[i + 2];
+            foundMatch = false;
 
-            if (a.Matches(b) && a.Matches(c))
+            if (current.Count < 3)
+                return;
+
+            var groups = new Dictionary<string, List<FigurineUI>>();
+
+            foreach (var fig in current)
             {
-                Destroy(a.gameObject);
-                Destroy(b.gameObject);
-                Destroy(c.gameObject);
+                string key = fig.GetKey(); 
+                if (!groups.ContainsKey(key))
+                    groups[key] = new List<FigurineUI>();
 
-                current.RemoveAt(i + 2);
-                current.RemoveAt(i + 1);
-                current.RemoveAt(i);
+                groups[key].Add(fig);
+            }
 
-                Rearrange();
-                break;
+            foreach (var group in groups)
+            {
+                if (group.Value.Count >= 3)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Destroy(group.Value[i].gameObject);
+                        current.Remove(group.Value[i]);
+                    }
+
+                    Rearrange();
+                    foundMatch = true;
+                    break;
+                }
             }
         }
     }
+
 
     private void Rearrange()
     {
@@ -72,6 +86,7 @@ public class ActionBarManager : MonoBehaviour
     {
         foreach (var fig in current)
             Destroy(fig.gameObject);
+
         current.Clear();
     }
 }
