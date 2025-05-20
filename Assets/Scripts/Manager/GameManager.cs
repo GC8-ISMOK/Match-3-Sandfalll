@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.VersionControl.Asset;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +8,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+
 
     public GameObject figurinePrefab;
 
@@ -24,7 +24,10 @@ public class GameManager : MonoBehaviour
     public string[] animals = { "cat", "dog", "fox" };
 
 
-    private int currentFigurineCount = 15;
+    public int currentFigurineCount;
+
+    public ParticleSystem confettiR;
+    public ParticleSystem confettiL;
 
     private void Awake()
     {
@@ -38,7 +41,8 @@ public class GameManager : MonoBehaviour
     {
         endGamePanel.SetActive(false);
         restartButton.onClick.AddListener(RestartGame);
-        SpawnFigurines(15);
+        SpawnFigurines(currentFigurineCount);
+        AudioManager.Instance.Play("MusicMain");
     }
 
     public void SpawnFigurines(int count)
@@ -46,15 +50,6 @@ public class GameManager : MonoBehaviour
         currentFigurineCount = count;
         int tripleCount = count / 3;
         List<FigurineData> pool = new List<FigurineData>();
-
-        for (int i = 0; i < count; i++)
-        {
-            Vector3 spawnPos = new Vector3(Random.Range(-2f, 2f), 6f + i * 0.5f, 0f);
-            var obj = Instantiate(figurinePrefab, spawnPos, Quaternion.identity);
-            Figurine f = obj.GetComponent<Figurine>();
-
-            f.Init("circle", "red", "cat");
-        }
 
         for (int i = 0; i < tripleCount; i++)
         { 
@@ -90,19 +85,36 @@ public class GameManager : MonoBehaviour
 
     public void OnFigurineClicked(Figurine fig)
     {
+
+        AudioManager.Instance.Play("FigurineDestroy");
         FigurineData data = new FigurineData(fig.shape, fig.color, fig.animal);
 
         Destroy(fig.gameObject);
+
         ActionBarManager.Instance.AddFigurine(data);
 
+        StartCoroutine(DelayedVictoryCheck());
+    }
+
+    private IEnumerator DelayedVictoryCheck()
+    {
+        yield return new WaitForEndOfFrame(); 
         CheckVictory();
     }
 
     public void CheckVictory()
     {
-        if (GameObject.FindObjectsOfType<Figurine>().Length == 0)
+
+        var figurinesLeft = GameObject.FindObjectsOfType<Figurine>();
+
+        if (figurinesLeft.Length == 0)
         {
-            ShowEndGame(true);
+            AudioManager.Instance.Play("Applause");
+            AudioManager.Instance.Play("Win");
+            AudioManager.Instance.Stop("MusicMain");
+            confettiR.Play();
+            confettiL.Play();
+            ShowEndGame(true); 
         }
     }
 

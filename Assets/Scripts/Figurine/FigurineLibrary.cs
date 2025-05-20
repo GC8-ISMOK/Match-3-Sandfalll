@@ -4,6 +4,7 @@ public class FigurineLibrary : MonoBehaviour
 {
     public static FigurineLibrary Instance;
 
+    [Header("Sprite")]
     public Sprite circleCat;
     public Sprite squareCat;
     public Sprite triangleCat;
@@ -15,6 +16,11 @@ public class FigurineLibrary : MonoBehaviour
     public Sprite circleFox;
     public Sprite squareFox;
     public Sprite triangleFox;
+
+    [Header("Frame")]
+    public Sprite squareFrame;
+    public Sprite circleFrame;
+    public Sprite triangleFrame;
 
     private void Awake()
     {
@@ -39,6 +45,16 @@ public class FigurineLibrary : MonoBehaviour
             case "trianglefox": return triangleFox;
 
             default: return null;
+        }
+    }
+    public Sprite GetFrameSprite(string shape)
+    {
+        switch (shape.ToLower())
+        {
+            case "square": return squareFrame;
+            case "circle": return circleFrame;
+            case "triangle": return triangleFrame;
+            default: return squareFrame;
         }
     }
 }

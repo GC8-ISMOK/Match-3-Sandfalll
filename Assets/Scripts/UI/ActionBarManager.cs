@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ActionBarManager : MonoBehaviour
 {
@@ -29,45 +28,41 @@ public class ActionBarManager : MonoBehaviour
         figUI.Setup(data);
         current.Add(figUI);
 
-        CheckMatch();
+        Invoke(nameof(CheckMatch), 0.15f);
     }
 
     private void CheckMatch()
     {
-        bool foundMatch = true;
+        if (current.Count < 3) return;
 
-        while (foundMatch)
+        var groups = new Dictionary<string, List<FigurineUI>>();
+
+        foreach (var fig in current)
         {
-            foundMatch = false;
+            string key = fig.GetKey();
+            if (!groups.ContainsKey(key))
+                groups[key] = new List<FigurineUI>();
 
-            if (current.Count < 3)
-                return;
+            groups[key].Add(fig);
+        }
 
-            var groups = new Dictionary<string, List<FigurineUI>>();
-
-            foreach (var fig in current)
+        foreach (var group in groups)
+        {
+            if (group.Value.Count >= 3)
             {
-                string key = fig.GetKey(); 
-                if (!groups.ContainsKey(key))
-                    groups[key] = new List<FigurineUI>();
+                List<FigurineUI> toRemove = group.Value.GetRange(0, 3);
 
-                groups[key].Add(fig);
-            }
-
-            foreach (var group in groups)
-            {
-                if (group.Value.Count >= 3)
+                foreach (var fig in toRemove)
                 {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        Destroy(group.Value[i].gameObject);
-                        current.Remove(group.Value[i]);
-                    }
-
-                    Rearrange();
-                    foundMatch = true;
-                    break;
+                    fig.AnimateAndDestroy();
                 }
+
+                current.RemoveAll(f => toRemove.Contains(f));
+
+                Invoke(nameof(Rearrange), 0.3f);
+
+                Invoke(nameof(CheckMatch), 0.35f);
+                return;
             }
         }
     }

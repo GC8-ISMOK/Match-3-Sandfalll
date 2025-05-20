@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class Figurine : MonoBehaviour
@@ -6,8 +7,8 @@ public class Figurine : MonoBehaviour
     public string color;
     public string animal;
 
-    public SpriteRenderer spriteRenderer;
-
+    public SpriteRenderer spriteRenderer; 
+    public SpriteRenderer frameRenderer;
     public void Init(string shape, string color, string animal)
     {
         this.shape = shape;
@@ -16,7 +17,18 @@ public class Figurine : MonoBehaviour
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = FigurineLibrary.Instance.GetSprite(shape, animal);
-        spriteRenderer.color = GetColorFromName(color);
+
+        Transform frame = transform.Find("Frame");
+        if (frame != null)
+        {
+            frameRenderer = frame.GetComponent<SpriteRenderer>();
+            frameRenderer.sprite = FigurineLibrary.Instance.GetFrameSprite(shape);
+            frameRenderer.color = GetColorFromName(color);
+        }
+        else
+        {
+            Debug.LogWarning("Frame not found under Figurine!");
+        }
     }
 
     private Color GetColorFromName(string color)
@@ -31,6 +43,21 @@ public class Figurine : MonoBehaviour
     }
     private void OnMouseDown()
     {
-        GameManager.Instance.OnFigurineClicked(this);
+        GetComponent<Collider2D>().enabled = false;
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.bodyType = RigidbodyType2D.Kinematic; 
+            rb.simulated = false; 
+        }
+
+        transform.DOScale(Vector3.zero, 0.4f).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            GameManager.Instance.OnFigurineClicked(this);
+            Destroy(gameObject);
+        });
     }
 }
